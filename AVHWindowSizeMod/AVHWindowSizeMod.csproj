@@ -307,6 +307,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ModConfig.cs" />
     <Compile Include="MelonMain.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
