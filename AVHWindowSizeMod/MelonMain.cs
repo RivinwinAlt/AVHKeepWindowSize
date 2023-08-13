@@ -2,16 +2,11 @@
 using HarmonyLib;
 using UnityEngine;
 using System;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
-using System.Collections;
-using System.Configuration;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
-using UnityEngine.XR;
-using System.Security.Policy;
 
 // When you have a monitor that supports multiple refresh rates your resolution selection box will have doubled entries,
 // but the code used by the game automatically selects the highest refresh rate supported no matter which of the duplicate entries you choose.
@@ -26,6 +21,8 @@ namespace AVHWindowSizeMod
         [DllImport("user32.dll", SetLastError = true)]
         static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
 
+
+
         // This definition is required, cant use predefined rectangle class
         [StructLayout(LayoutKind.Sequential)]
         public struct RECT
@@ -39,6 +36,8 @@ namespace AVHWindowSizeMod
         // Variables
         internal static string modFolder = $"{Environment.CurrentDirectory}\\Mods\\{Assembly.GetExecutingAssembly().GetName().Name}";
         public static List<Resolution> resolutionsList;
+        public static GameObject hud;
+        public const float sixteenNine = 16.0f / 9.0f;
 
 
 
@@ -51,6 +50,34 @@ namespace AVHWindowSizeMod
 
             // Check if the mod has been run before and if so make sure it ran properly
             if (!ModConfig.Instance.Write("initialized", true.ToString())) LoggerInstance.Msg("Config failed to initialize");
+        }
+
+        public override void OnSceneWasInitialized(int buildIndex, string sceneName)
+        {
+            UnityEngine.UI.CanvasScaler[] allScalers = UnityEngine.Object.FindObjectsOfType(typeof(UnityEngine.UI.CanvasScaler)) as UnityEngine.UI.CanvasScaler[];
+            foreach (UnityEngine.UI.CanvasScaler scaler in allScalers)
+            {
+                
+                scaler.screenMatchMode = UnityEngine.UI.CanvasScaler.ScreenMatchMode.Expand;
+            }
+
+            hud = GameObject.Find("HUD");
+            if (hud != null && Screen.width / Screen.height > sixteenNine)
+            {
+                hud.transform.GetComponent<RectTransform>().localPosition = new Vector3(((Screen.height * sixteenNine) - Screen.width) / 2, 0f, 0f);
+                //hud.transform.GetChild(0).gameObject.GetComponent<RectTransform>().anchorMin = new Vector2(-.5f, .5f);
+                //hud.transform.GetChild(1).gameObject.GetComponent<RectTransform>().anchorMin = new Vector2(0f, .5f);
+                //hud.transform.GetChild(2).gameObject.GetComponent<RectTransform>().anchorMin = new Vector2(0f, .5f);
+            }
+        }
+
+        public override void OnLateUpdate() // At end of each frame during gameplay
+        {
+            // Hotkey to move window to 0,0
+            if (Input.GetKeyDown(KeyCode.F1))
+            {
+                if(!Screen.fullScreen) MoveWindow(-8, 0);
+            }
         }
 
         public override void OnDeinitializeMelon() // Destructor

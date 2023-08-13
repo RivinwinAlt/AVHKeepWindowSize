@@ -1,13 +1,6 @@
 ﻿using MelonLoader;
 using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Unity.Collections.LowLevel.Unsafe;
 
 namespace AVHWindowSizeMod
 {
